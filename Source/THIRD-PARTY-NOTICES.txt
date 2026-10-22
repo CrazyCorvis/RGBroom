@@ -1,0 +1,28 @@
+RGBroom
+
+This distribution includes the full source of the application.
+The source is distributed under LGPL-3.0-or-later; see ../Licenses/flux-led-LGPL-3.0.txt
+and ../Licenses/GPL-3.0.txt for the license texts.
+
+Protocol model metadata and the LEDENET / Magic Home protocol implementation
+are adapted from flux_led 1.2.0 (lightinglibs / original flux_led contributors).
+https://github.com/lightinglibs/flux_led
+License: GNU Lesser General Public License v3.0 or later.
+The port, C# signal processing, settings migration and Windows interface are
+included as editable C# / XAML source in this directory.
+
+NAudio / NAudio.Wasapi / NAudio.Core, Mark Heath and contributors
+https://github.com/naudio/NAudio
+License: MIT. See ../Licenses/NAudio-MIT.txt.
+
+.NET and WPF, Microsoft and contributors
+https://github.com/dotnet/runtime
+https://github.com/dotnet/wpf
+The runtime's own license and third-party notices are included in App/.
+
+Additional protocol references (wire-format facts; see COMPATIBILITY.md):
+https://github.com/jasonacox/tinytuya/blob/master/PROTOCOL.md
+https://github.com/FergusInLondon/ELK-BLEDOM/blob/master/PROTCOL.md
+https://github.com/madhead/saberlight/blob/master/protocols/Triones/protocol.md
+https://kno.wled.ge/interfaces/json-api/
+https://www.yeelight.com/download/Yeelight_Inter-Operation_Spec.pdf

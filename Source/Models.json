@@ -1,0 +1,479 @@
+{
+  "1": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ORIGINAL"
+      }
+    ]
+  },
+  "2": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ORIGINAL"
+      }
+    ]
+  },
+  "3": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ORIGINAL_CCT"
+      }
+    ]
+  },
+  "4": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 6,
+        "name": "LEDENET_8BYTES_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "6": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 2,
+        "name": "LEDENET_8BYTE_DIMMABLE_EFFECTS"
+      },
+      {
+        "min": 1,
+        "name": "LEDENET_8BYTES_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "7": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 2,
+        "name": "LEDENET_DIMMABLE_EFFECTS"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET"
+      }
+    ]
+  },
+  "8": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 2,
+        "name": "LEDENET_8BYTE_DIMMABLE_EFFECTS"
+      },
+      {
+        "min": 1,
+        "name": "LEDENET_8BYTES_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "9": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_CCT"
+      }
+    ]
+  },
+  "11": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "14": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 9,
+        "name": "LEDENET_DIMMABLE_EFFECTS"
+      },
+      {
+        "min": 7,
+        "name": "LEDENET_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET"
+      }
+    ]
+  },
+  "16": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_CHRISTMAS"
+      }
+    ]
+  },
+  "26": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_CHRISTMAS"
+      }
+    ]
+  },
+  "22": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "23": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "24": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "25": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_SOCKET"
+      }
+    ]
+  },
+  "27": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "28": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_CCT_WRAPPED"
+      }
+    ]
+  },
+  "29": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 2,
+        "name": "LEDENET_8BYTES_AUTO_ON"
+      }
+    ]
+  },
+  "30": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 9,
+        "name": "LEDENET_DIMMABLE_EFFECTS"
+      },
+      {
+        "min": 7,
+        "name": "LEDENET_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET"
+      }
+    ]
+  },
+  "33": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 2,
+        "name": "LEDENET_8BYTES_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "37": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET"
+      }
+    ]
+  },
+  "51": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 9,
+        "name": "LEDENET_8BYTE_DIMMABLE_EFFECTS"
+      },
+      {
+        "min": 6,
+        "name": "LEDENET_8BYTES_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "53": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 10,
+        "name": "LEDENET_25_BYTE"
+      },
+      {
+        "min": 9,
+        "name": "LEDENET_DIMMABLE_EFFECTS"
+      },
+      {
+        "min": 7,
+        "name": "LEDENET_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET"
+      }
+    ]
+  },
+  "65": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 2,
+        "name": "LEDENET_8BYTES_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "68": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 9,
+        "name": "LEDENET_8BYTES_AUTO_ON"
+      },
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "69": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "82": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "84": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "98": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "129": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "147": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_SOCKET"
+      }
+    ]
+  },
+  "148": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_SOCKET"
+      }
+    ]
+  },
+  "149": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_SOCKET"
+      }
+    ]
+  },
+  "150": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_SOCKET"
+      }
+    ]
+  },
+  "151": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_SOCKET"
+      }
+    ]
+  },
+  "161": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ADDRESSABLE_A1"
+      }
+    ]
+  },
+  "162": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ADDRESSABLE_A2"
+      }
+    ]
+  },
+  "163": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ADDRESSABLE_A3"
+      }
+    ]
+  },
+  "164": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ADDRESSABLE_A3"
+      }
+    ]
+  },
+  "166": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ADDRESSABLE_A3"
+      }
+    ]
+  },
+  "167": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_ADDRESSABLE_A3"
+      }
+    ]
+  },
+  "209": {
+    "all": false,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "225": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  },
+  "226": {
+    "all": true,
+    "protocols": [
+      {
+        "min": 0,
+        "name": "LEDENET_8BYTE"
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+<Window x:Class="MagicHomeNET.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="RGBroom" Width="1060" Height="820" MinWidth="900" MinHeight="660" WindowStartupLocation="CenterScreen" FontFamily="Segoe UI Variable, Segoe UI" FontSize="14" Background="{DynamicResource SolidBackgroundFillColorBaseBrush}" Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+  <Grid Margin="24,16,24,16">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <Grid Margin="0,0,0,20">
+      <StackPanel><TextBlock Text="RGBroom" FontSize="28" FontWeight="SemiBold"/><TextBlock Text="Управление освещением" Opacity="0.65" Margin="0,2,0,0"/></StackPanel>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"><Button x:Name="OnButton" Content="Включить" Click="PowerOn" ToolTip="Включить подключённую группу" Style="{DynamicResource AccentButtonStyle}" Margin="0,0,8,0" Padding="14,7"/><Button Content="Выключить" Click="PowerOff" ToolTip="Выключить подключённую группу"/></StackPanel>
+    </Grid>
+    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="16,10">
+      <Expander x:Name="DevicePanel" Header="Контроллеры" IsExpanded="False">
+        <StackPanel Margin="0,14,0,0">
+          <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="185"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <TextBox x:Name="IpInput" MinHeight="34" VerticalContentAlignment="Center" ToolTip="IPv4 для Wi-Fi или MAC AA:BB:CC:DD:EE:FF для Bluetooth" AutomationProperties.Name="IP или Bluetooth MAC контроллера" KeyDown="IpKeyDown"/>
+            <ComboBox Grid.Column="1" x:Name="AddProtocol" Margin="8,0,0,0" ToolTip="Семейство контроллера"/>
+            <Button Grid.Column="2" Content="Добавить" Click="AddIp" Margin="8,0,8,0"/><Button Grid.Column="3" x:Name="ScanButton" Content="Найти Wi-Fi" Click="Scan"/>
+          </Grid>
+          <DataGrid x:Name="DeviceGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionMode="Single" MaxHeight="180" MinHeight="100" HeadersVisibility="Column" GridLinesVisibility="None">
+            <DataGrid.Columns>
+              <DataGridCheckBoxColumn Header="Выбор" Binding="{Binding Selected, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+              <DataGridTextColumn Header="IP / MAC" Binding="{Binding Ip}" IsReadOnly="True" Width="155"/>
+              <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+              <DataGridTextColumn Header="Состояние" Binding="{Binding Status}" IsReadOnly="True" Width="230"/>
+              <DataGridComboBoxColumn x:Name="ProtocolColumn" Header="Семейство" SelectedValueBinding="{Binding Protocol}" SelectedValuePath="Key" DisplayMemberPath="Name" Width="165"/>
+            </DataGrid.Columns>
+          </DataGrid>
+          <WrapPanel Margin="0,12,0,0"><Button Content="Выбрать все" Click="SelectAll"/><Button Content="Снять выбор" Click="SelectNone"/><Button Content="Удалить" Click="RemoveDevice"/><Button Content="Настройка Tuya" Click="ConfigureTuya"/><Button x:Name="BleScanButton" Content="Найти Bluetooth" Click="ScanBluetooth"/><Button Content="Отключить группу" Click="Disconnect"/><Button x:Name="ConnectButton" Content="Подключить выбранные" Click="Connect"/></WrapPanel>
+          <TextBlock Text="Связь проверяется каждые 5 секунд. При обрыве подключение восстанавливается автоматически." Opacity="0.65" FontSize="12" Margin="0,10,0,0"/>
+        </StackPanel>
+      </Expander>
+    </Border>
+    <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="180"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+      <ListBox x:Name="Navigation" SelectionChanged="Navigate" BorderThickness="0" Background="Transparent" Margin="0,4,16,0" HorizontalContentAlignment="Stretch" AutomationProperties.Name="Режим освещения">
+        <ListBoxItem Tag="Color" Padding="12" Content="Цвет"/>
+        <ListBoxItem Tag="Transition" Padding="12" Content="Переход"/>
+        <ListBoxItem Tag="Music" Padding="12" Content="Цветомузыка"/>
+        <ListBoxItem Tag="Spectrum" Padding="12" Content="Спектр"/>
+        <ListBoxItem Tag="Ambient" Padding="12" Content="Фон"/>
+      </ListBox>
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,6,0">
+        <StackPanel><TextBlock x:Name="PageTitle" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,4"/><TextBlock x:Name="PageDescription" Opacity="0.65" Margin="0,0,0,20"/><StackPanel x:Name="PageContent"/></StackPanel>
+      </ScrollViewer>
+    </Grid>
+    <Border Grid.Row="3" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" Padding="0,14,0,0" Margin="0,12,0,0">
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+        <Border x:Name="ColorPreview" Width="32" Height="32" CornerRadius="6" Background="#4664FF" Margin="0,0,12,0"/>
+        <StackPanel Grid.Column="1"><TextBlock x:Name="StatusText" Text="Найдите контроллеры или добавьте IP-адрес." FontSize="12"/><TextBlock x:Name="GroupText" Text="Группа не подключена" FontSize="11" Opacity="0.6"/></StackPanel>
+        <TextBlock Grid.Column="2" x:Name="HexText" Text="#4664FF" VerticalAlignment="Center" FontFamily="Cascadia Mono, Consolas" Opacity="0.7" Margin="12,0,0,0"/>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
