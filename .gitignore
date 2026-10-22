@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/.build/
+App/
+artifacts/
+*.zip
+*.lnk
+.vs/
+.idea/
+*.user
+*.suo
+settings.json
+errors.log
+test-report.txt
