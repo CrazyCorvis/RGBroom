@@ -41,8 +41,9 @@ public class DeviceEntry : INotifyPropertyChanged
     public int ModeDp { get; set; }
     public int ColorDp { get; set; }
     public bool BluetoothRandom { get; set; }
+    public bool BluetoothElk13 { get; set; }
     public static bool IsBle(ProtocolKind p) => p is ProtocolKind.ElkBledom or ProtocolKind.Triones;
-    public static bool ValidAddress(string value, ProtocolKind p) => IsBle(p) ? BluetoothConnection.TryAddress(value, out _) : System.Net.IPAddress.TryParse(value, out var ip) && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
+    public static bool ValidAddress(string value, ProtocolKind p) => IsBle(p) ? BluetoothConnection.IsValidAddress(value) : System.Net.IPAddress.TryParse(value, out var ip) && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
     [System.Text.Json.Serialization.JsonIgnore]
     public string Status { get => status; set => Set(ref status, value); }
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -93,7 +94,9 @@ public record EngineOptions(LightMode Mode, Rgb Color, double Brightness, double
     double Gain, double[] Weights, double FlashBrightness, double FlashMilliseconds, string OutputId, string OutputName, string Display);
 public static class SettingsStore
 {
-    public static string DirectoryPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RGBroom");
+    public static string DirectoryPath => OperatingSystem.IsMacOS()
+        ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "Application Support", "RGBroom")
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RGBroom");
     public static string FilePath => Path.Combine(DirectoryPath, "settings.json");
     static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
     public static UserSettings Load()

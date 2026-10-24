@@ -22,7 +22,7 @@ public static class AdapterTests
         SelfTests.Assert(Convert.ToHexString(BluetoothConnection.PowerPacket(ProtocolKind.Triones,false))=="CC2433","Triones power");
         SelfTests.Assert(BluetoothConnection.TryAddress("AA:BB:CC:DD:EE:FF",out var mac)&&BluetoothConnection.FormatAddress(mac)=="AA:BB:CC:DD:EE:FF","BLE MAC normalization");
         SelfTests.Assert(!DeviceEntry.ValidAddress("192.0.2.5",ProtocolKind.Triones),"BLE rejects IP address");
-        var config=new UserSettings{Devices=new(){new(){Ip="AA:BB:CC:DD:EE:FF",Protocol=ProtocolKind.ElkBledom}}};config.Validate();SelfTests.Assert(config.Devices.Count==1,"BLE settings survive reload");
+        var config=new UserSettings{Devices=new(){new(){Ip=OperatingSystem.IsMacOS()?"11111111-2222-3333-4444-555555555555":"AA:BB:CC:DD:EE:FF",Protocol=ProtocolKind.ElkBledom}}};config.Validate();SelfTests.Assert(config.Devices.Count==1,"BLE settings survive reload");
         byte[] key=Encoding.ASCII.GetBytes("0123456789abcdef"),data=Encoding.UTF8.GetBytes("RGBroom synthetic protocol test");
         foreach(string version in new[]{"3.3","3.4","3.5"})
         {
@@ -34,9 +34,12 @@ public static class AdapterTests
         }
         SelfTests.Assert(TuyaConnection.ColorValue(new(255,0,0),false)=="000003e803e8","Tuya modern HSV");
         SelfTests.Assert(TuyaConnection.ColorValue(new(0,255,0),true)=="00ff000078ffff","Tuya legacy RGBHSV");
-        string protectedKey=LocalSecrets.Protect("0123456789abcdef");SelfTests.Assert(!protectedKey.Contains("0123456789abcdef")&&LocalSecrets.Reveal(protectedKey)=="0123456789abcdef","DPAPI local_key protection");
+        string protectedKey=LocalSecrets.Protect("0123456789abcdef");SelfTests.Assert(!protectedKey.Contains("0123456789abcdef")&&LocalSecrets.Reveal(protectedKey)=="0123456789abcdef","Platform local_key protection");
+#if MACOS
+        LocalSecrets.Delete(protectedKey);
+#endif
         await Wled();await Yeelight();
-        SelfTests.Report("PASS: ELK/Triones BLE packets and addresses; Tuya 3.3/3.4/3.5 encrypted sessions, authentication, DP mapping, color/power/heartbeat; DPAPI; WLED HTTP; Yeelight reverse music TCP");
+        SelfTests.Report("PASS: ELK/Triones BLE packets and addresses; Tuya 3.3/3.4/3.5 encrypted sessions, authentication, DP mapping, color/power/heartbeat; protected local_key; WLED HTTP; Yeelight reverse music TCP");
     }
     static async Task Tuya(string version)
     {
@@ -77,6 +80,9 @@ public static class AdapterTests
         });
         var entry=new DeviceEntry{Ip="127.0.0.1",Protocol=ProtocolKind.Tuya,DeviceId="rgbroom-test-only",ProtectedKey=LocalSecrets.Protect("0123456789abcdef"),TuyaVersion=version};
         await using(var connection=new TuyaConnection(entry,port)){await connection.ConnectAsync(token);await connection.SetColorAsync(new(255,0,0),false,token);await connection.SetPowerAsync(false,token);await connection.PingAsync(token);}
+        #if MACOS
+        LocalSecrets.Delete(entry.ProtectedKey);
+#endif
         await server;listener.Stop();SelfTests.Assert(commands.Contains(9u)&&commands.Any(x=>x is 7 or 13),"Tuya heartbeat and controls "+version);
     }
     static async Task Wled()
