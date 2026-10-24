@@ -20,7 +20,9 @@ public sealed class BluetoothConnection : ILightConnection
     GattCharacteristic? write;
     bool elk13;
     readonly bool random;
+    readonly bool preferElk13;
     public string Description=>kind==ProtocolKind.Triones?"Triones · Bluetooth LE":"ELK-BLEDOM · Bluetooth LE";
+    public static bool IsValidAddress(string value) => TryAddress(value, out _);
     static Guid Uuid(string shortId)=>Guid.Parse("0000"+shortId+"-0000-1000-8000-00805f9b34fb");
     public static string FormatAddress(ulong value)=>string.Join(":",Enumerable.Range(0,6).Select(i=>((value>>((5-i)*8))&255).ToString("X2")));
     public static bool TryAddress(string text,out ulong value)
@@ -29,7 +31,7 @@ public sealed class BluetoothConnection : ILightConnection
         return text.Length==12&&ulong.TryParse(text,NumberStyles.HexNumber,CultureInfo.InvariantCulture,out value) ? true : Fail(out value);
         static bool Fail(out ulong v){v=0;return false;}
     }
-    public BluetoothConnection(string mac,ProtocolKind kind,bool random=false){if(!TryAddress(mac,out address))throw new ArgumentException("Введите Bluetooth MAC: AA:BB:CC:DD:EE:FF");this.kind=kind;this.random=random;}
+    public BluetoothConnection(string mac,ProtocolKind kind,bool random=false,bool elk13Override=false){if(!TryAddress(mac,out address))throw new ArgumentException("Введите Bluetooth MAC: AA:BB:CC:DD:EE:FF");this.kind=kind;this.random=random;preferElk13=elk13Override;}
     public async Task ConnectAsync(CancellationToken token)
     {
         await DisposeAsync();
@@ -43,7 +45,7 @@ public sealed class BluetoothConnection : ILightConnection
         service=services.Services[0];foreach(var extra in services.Services.Skip(1))extra.Dispose();
         var chars=await service.GetCharacteristicsForUuidAsync(Uuid(kind==ProtocolKind.Triones?"ffd9":"fff3"),BluetoothCacheMode.Uncached).AsTask(token).WaitAsync(TimeSpan.FromSeconds(15),token);
         if(chars.Status!=GattCommunicationStatus.Success||chars.Characteristics.Count==0)throw new IOException("Нет характеристики записи BLE.");
-        write=chars.Characteristics[0];elk13=write.AttributeHandle==13;
+        write=chars.Characteristics[0];elk13=preferElk13||write.AttributeHandle==13;
         if((write.CharacteristicProperties&(GattCharacteristicProperties.Write|GattCharacteristicProperties.WriteWithoutResponse))==0)throw new IOException("Характеристика BLE не поддерживает запись.");
         if(kind==ProtocolKind.ElkBledom)await Send(elk13?new byte[]{0x7e,4,1,100,1,255,2,1,0xef}:new byte[]{0x7e,0,1,100,0,0,0,0,0xef},token);
     }

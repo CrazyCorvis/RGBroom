@@ -1,0 +1,22 @@
+RGBroom for macOS
+
+RGBroom is licensed under LGPL-3.0-or-later. See LICENSE, COPYING and
+Licenses/flux-led-LGPL-3.0.txt in this directory.
+Corresponding source and build instructions are provided in the GitHub release:
+https://github.com/CrazyCorvis/RGBroom/releases/tag/v9.1.0-macos
+Repository: https://github.com/CrazyCorvis/RGBroom
+
+Protocol model metadata and the LEDENET / Magic Home protocol implementation
+are adapted from flux_led 1.2.0 (lightinglibs / original flux_led contributors).
+https://github.com/lightinglibs/flux_led
+License: LGPL-3.0-or-later.
+
+.NET runtime, Microsoft and contributors
+https://github.com/dotnet/runtime
+The bundled runtime's license and third-party notices are in Engine/LICENSE.TXT
+and Engine/THIRD-PARTY-NOTICES.TXT.
+
+SwiftUI, AppKit, ScreenCaptureKit, CoreBluetooth and Security.framework are
+system frameworks supplied by Apple with macOS, not redistributed in this app.
+The macOS app does not bundle WPF or NAudio; their license texts may appear
+alongside the shared Windows source distribution.

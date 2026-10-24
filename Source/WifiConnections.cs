@@ -17,7 +17,7 @@ public static class ConnectionFactory
     {
         ProtocolKind.Wled => new WledConnection(d.Ip),
         ProtocolKind.Yeelight => new YeelightConnection(d.Ip),
-        ProtocolKind.ElkBledom or ProtocolKind.Triones => new BluetoothConnection(d.Ip, d.Protocol,d.BluetoothRandom),
+        ProtocolKind.ElkBledom or ProtocolKind.Triones => new BluetoothConnection(d.Ip, d.Protocol,d.BluetoothRandom,d.BluetoothElk13),
         ProtocolKind.Tuya => new TuyaConnection(d),
         _ => new TcpLightConnection(d.Ip, d.Protocol)
     };

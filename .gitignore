@@ -12,3 +12,5 @@ artifacts/
 settings.json
 errors.log
 test-report.txt
+Mac/native/*.dylib
+.DS_Store

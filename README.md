@@ -2,14 +2,15 @@
   <img src="docs/images/icon.png" width="112" alt="RGBroom">
   <h1>RGBroom</h1>
   <p><b>Цвет, музыка и свет вашего экрана — в одной комнате.</b></p>
-  <p>Приложение для Windows: управление RGB-лентами по Wi-Fi и Bluetooth.</p>
+  <p>Приложение для Windows и macOS: управление RGB-лентами по Wi-Fi и Bluetooth.</p>
   <p>
     <img alt="Windows 10 / 11" src="https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4">
-    <img alt=".NET 10 / WPF" src="https://img.shields.io/badge/.NET-10%20%2F%20WPF-512BD4">
-    <img alt="Version 9.0.0" src="https://img.shields.io/badge/version-9.0.0-24B47E">
+    <img alt="macOS 14+ · Apple Silicon" src="https://img.shields.io/badge/macOS-14%2B%20%7C%20Apple%20Silicon-242424">
+    <img alt="SwiftUI / .NET 10 / WPF" src="https://img.shields.io/badge/SwiftUI%20%2F%20.NET%2010%20%2F%20WPF-512BD4">
+    <img alt="macOS version 9.1.0" src="https://img.shields.io/badge/macOS-9.1.0-24B47E">
     <img alt="LGPL 3.0 or later" src="https://img.shields.io/badge/license-LGPL--3.0--or--later-blue">
   </p>
-  <p><a href="https://github.com/CrazyCorvis/RGBroom/releases/latest">Скачать для Windows</a> · <a href="#быстрый-старт">Быстрый старт</a> · <a href="COMPATIBILITY.md">Совместимость</a> · <a href="#сборка-из-исходников">Сборка</a></p>
+  <p><a href="https://github.com/CrazyCorvis/RGBroom/releases/tag/v9.0.0">Скачать для Windows</a> · <a href="https://github.com/CrazyCorvis/RGBroom/releases/tag/v9.1.0-macos">Скачать для macOS</a> · <a href="Mac/README.md">Инструкция macOS</a> · <a href="COMPATIBILITY.md">Совместимость</a> · <a href="#сборка-из-исходников">Сборка</a></p>
 </div>
 
 ![Интерфейс RGBroom: отдельные вкладки режимов и настройки контроллеров](docs/images/preview.png)
@@ -47,7 +48,9 @@
 
 ## Быстрый старт
 
-1. Скачайте `RGBroom-Windows.zip` из раздела [**Releases**](https://github.com/CrazyCorvis/RGBroom/releases/latest).
+### Windows
+
+1. Скачайте `RGBroom-Windows.zip` из [релиза для Windows](https://github.com/CrazyCorvis/RGBroom/releases/tag/v9.0.0).
 2. Распакуйте архив целиком в постоянную папку.
 3. Запустите `RGBroom.cmd` или `App\RGBroom.exe`.
 4. Добавьте контроллеры, выберите нужные устройства и подключитесь.
@@ -57,7 +60,18 @@
 
 **Требования:** Windows 10 версии 2004 или новее / Windows 11, x64. Готовая сборка содержит .NET; отдельная установка среды не требуется. Для BLE нужен Bluetooth-адаптер с поддержкой Bluetooth Low Energy. Контроллеры Wi-Fi и ПК должны находиться в одной локальной сети без изоляции клиентов.
 
-Сборки для macOS пока нет: интерфейс использует WPF, захват звука — WASAPI, Bluetooth — Windows GATT.
+### macOS
+
+1. Скачайте `RGBroom-macOS-arm64.zip` из [релиза для macOS](https://github.com/CrazyCorvis/RGBroom/releases/tag/v9.1.0-macos).
+2. Распакуйте архив и перенесите `RGBroom.app` в **Программы**.
+3. Откройте приложение, добавьте контроллеры и подключитесь.
+4. Для Bluetooth, локальной сети, цветомузыки и фона предоставьте соответствующие разрешения по запросу macOS.
+
+**Требования:** Mac с Apple Silicon (M1 и новее), macOS 14 или новее. .NET включён. Нативный интерфейс **SwiftUI** использует системное оформление macOS 27, боковую панель, Liquid Glass, светлую/тёмную тему и системные элементы управления; на более ранних системах — их стандартное оформление.
+
+Звук и экран захватываются через ScreenCaptureKit, Bluetooth работает через CoreBluetooth, ключи Tuya хранятся в Keychain. Анализируется общий системный звук; BLE-устройства добавляются через поиск UUID этого Mac. Подробности и отличия: [**RGBroom для macOS**](Mac/README.md).
+
+Сборка имеет локальную ad-hoc подпись, без Developer ID и нотарификации Apple. Если Gatekeeper блокирует первый запуск, проверьте источник загрузки и разрешите открытие в **Системные настройки → Конфиденциальность и безопасность → Всё равно открыть**. Глобально отключать защиту macOS не требуется.
 
 ## Локальная работа и настройки
 
@@ -86,6 +100,8 @@ dotnet run --project .\Source\RGBroom.csproj -c Debug
 ## Устройство проекта
 
 Исходники C# и XAML находятся в `Source/`. `LightEngine.cs` объединяет режимы; `Effects.cs` обрабатывает спектр и цвет; `Capture.cs` получает звук и изображение. Адаптеры устройств находятся в `Network.cs`, `WifiConnections.cs`, `TuyaConnection.cs` и `BluetoothConnection.cs`. Сценарии проверок — `SelfTests.cs` и `AdapterTests.cs`.
+
+`Mac/` содержит нативное macOS-приложение и платформенные адаптеры. Сетевые протоколы, модели и эффекты используются совместно с Windows без копирования исходников.
 
 О том, как сообщить об устройстве или предложить изменение, — [CONTRIBUTING.md](CONTRIBUTING.md). Изменения версии — [CHANGELOG.md](CHANGELOG.md).
 

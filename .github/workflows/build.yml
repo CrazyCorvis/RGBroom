@@ -1,0 +1,35 @@
+name: Build and test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build native app and run protocol tests
+        run: ./Mac/build.sh
+      - name: Archive app preserving bundle metadata
+        run: ditto -c -k --sequesterRsrc --keepParent artifacts/macos-*/RGBroom.app artifacts/RGBroom-macOS.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RGBroom-macOS
+          path: |
+            artifacts/RGBroom-macOS.zip
+            Mac/.build/*/test-report.txt
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build Windows and run existing tests
+        shell: pwsh
+        run: ./Source/build.ps1
