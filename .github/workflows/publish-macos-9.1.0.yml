@@ -1,0 +1,56 @@
+name: Publish macOS 9.1.0
+on:
+  push:
+    branches: [codex/publish-macos-9.1.0]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 73638c837ae9b770942cbf61f17d01ba4eff7781
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build Apple Silicon application and run tests
+        run: ./Mac/build.sh arm64
+      - name: Package and verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/release
+          ditto -c -k --sequesterRsrc --keepParent artifacts/macos-arm64/RGBroom.app artifacts/release/RGBroom-macOS-arm64.zip
+          ditto -x -k artifacts/release/RGBroom-macOS-arm64.zip "$RUNNER_TEMP/verify-rgbroom"
+          codesign --verify --deep --strict "$RUNNER_TEMP/verify-rgbroom/RGBroom.app"
+          cd artifacts/release
+          shasum -a 256 RGBroom-macOS-arm64.zip > SHA256SUMS-macOS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-release-files
+          path: artifacts/release/*
+          if-no-files-found: error
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 73638c837ae9b770942cbf61f17d01ba4eff7781
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos-release-files
+          path: release-files
+      - name: Publish verified macOS release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: CrazyCorvis/RGBroom
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create v9.1.0-macos --target 73638c837ae9b770942cbf61f17d01ba4eff7781 --title "RGBroom 9.1.0 — нативная версия для macOS" --notes-file Mac/RELEASE-NOTES.md --draft
+          gh release upload v9.1.0-macos release-files/RGBroom-macOS-arm64.zip release-files/SHA256SUMS-macOS.txt
+          gh release edit v9.1.0-macos --draft=false --latest
