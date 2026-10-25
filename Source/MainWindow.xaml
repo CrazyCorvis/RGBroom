@@ -16,13 +16,13 @@
           <DataGrid x:Name="DeviceGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionMode="Single" MaxHeight="180" MinHeight="100" HeadersVisibility="Column" GridLinesVisibility="None">
             <DataGrid.Columns>
               <DataGridCheckBoxColumn Header="Выбор" Binding="{Binding Selected, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
-              <DataGridTextColumn Header="IP / MAC" Binding="{Binding Ip}" IsReadOnly="True" Width="155"/>
+              <DataGridTextColumn Header="Адрес" Binding="{Binding AddressLabel}" IsReadOnly="True" Width="155"/>
               <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
               <DataGridTextColumn Header="Состояние" Binding="{Binding Status}" IsReadOnly="True" Width="230"/>
               <DataGridComboBoxColumn x:Name="ProtocolColumn" Header="Семейство" SelectedValueBinding="{Binding Protocol}" SelectedValuePath="Key" DisplayMemberPath="Name" Width="165"/>
             </DataGrid.Columns>
           </DataGrid>
-          <WrapPanel Margin="0,12,0,0"><Button Content="Выбрать все" Click="SelectAll"/><Button Content="Снять выбор" Click="SelectNone"/><Button Content="Удалить" Click="RemoveDevice"/><Button Content="Настройка Tuya" Click="ConfigureTuya"/><Button x:Name="BleScanButton" Content="Найти Bluetooth" Click="ScanBluetooth"/><Button Content="Отключить группу" Click="Disconnect"/><Button x:Name="ConnectButton" Content="Подключить выбранные" Click="Connect"/></WrapPanel>
+          <WrapPanel Margin="0,12,0,0"><Button Content="Выбрать все" Click="SelectAll"/><Button Content="Снять выбор" Click="SelectNone"/><Button Content="Удалить" Click="RemoveDevice"/><Button Content="Подсветка ПК" Click="ConfigurePc"/><Button Content="Настройка Tuya" Click="ConfigureTuya"/><Button x:Name="BleScanButton" Content="Найти Bluetooth" Click="ScanBluetooth"/><Button Content="Отключить группу" Click="Disconnect"/><Button x:Name="ConnectButton" Content="Подключить выбранные" Click="Connect"/></WrapPanel>
           <TextBlock Text="Связь проверяется каждые 5 секунд. При обрыве подключение восстанавливается автоматически." Opacity="0.65" FontSize="12" Margin="0,10,0,0"/>
         </StackPanel>
       </Expander>

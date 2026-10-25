@@ -19,6 +19,7 @@ public static class ConnectionFactory
         ProtocolKind.Yeelight => new YeelightConnection(d.Ip),
         ProtocolKind.ElkBledom or ProtocolKind.Triones => new BluetoothConnection(d.Ip, d.Protocol,d.BluetoothRandom,d.BluetoothElk13),
         ProtocolKind.Tuya => new TuyaConnection(d),
+        ProtocolKind.OpenRgb => new OpenRgbConnection(d),
         _ => new TcpLightConnection(d.Ip, d.Protocol)
     };
 }

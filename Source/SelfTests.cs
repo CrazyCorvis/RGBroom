@@ -35,6 +35,7 @@ public static class SelfTests
     {
         Active = true;
         await AdapterTests.Run();
+        await OpenRgbTests.Run();
         double[][] bands = new[] { 100d, 1000, 6000 }.Select(f => SpectrumAnalyzer.Analyze(Tone(f), 48000)).ToArray();
         for (int i = 0; i < 3; i++)
         {

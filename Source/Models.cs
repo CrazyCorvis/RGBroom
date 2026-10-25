@@ -9,7 +9,7 @@ using System.Text.Json;
 namespace MagicHomeNET;
 public enum LightMode { Color, Transition, Music, Spectrum, Ambient }
 public enum MusicStyle { Smooth, Pulse, Energetic, Strobe }
-public enum ProtocolKind { Auto, Rgb8, Rgb9, Legacy, LegacyRgbw, Spi2, Spi3, Hsv25, Wled, Yeelight, ElkBledom, Triones, Tuya }
+public enum ProtocolKind { Auto, Rgb8, Rgb9, Legacy, LegacyRgbw, Spi2, Spi3, Hsv25, Wled, Yeelight, ElkBledom, Triones, Tuya, OpenRgb }
 public readonly record struct Rgb(byte R, byte G, byte B)
 {
     public static Rgb Black => new(0, 0, 0);
@@ -42,8 +42,11 @@ public class DeviceEntry : INotifyPropertyChanged
     public int ColorDp { get; set; }
     public bool BluetoothRandom { get; set; }
     public bool BluetoothElk13 { get; set; }
+    public string OpenRgbZoneName { get; set; } = "";
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string AddressLabel => Protocol == ProtocolKind.OpenRgb && OpenRgbConnection.TryAddress(Ip,out var uri) ? $"ПК · {uri.Host}:{uri.Port}" : Ip;
     public static bool IsBle(ProtocolKind p) => p is ProtocolKind.ElkBledom or ProtocolKind.Triones;
-    public static bool ValidAddress(string value, ProtocolKind p) => IsBle(p) ? BluetoothConnection.IsValidAddress(value) : System.Net.IPAddress.TryParse(value, out var ip) && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
+    public static bool ValidAddress(string value, ProtocolKind p) => p == ProtocolKind.OpenRgb ? OpenRgbConnection.TryAddress(value, out _) : IsBle(p) ? BluetoothConnection.IsValidAddress(value) : System.Net.IPAddress.TryParse(value, out var ip) && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
     [System.Text.Json.Serialization.JsonIgnore]
     public string Status { get => status; set => Set(ref status, value); }
     public event PropertyChangedEventHandler? PropertyChanged;

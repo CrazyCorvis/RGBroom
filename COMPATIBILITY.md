@@ -50,3 +50,14 @@
 - [Официальная спецификация Yeelight LAN](https://www.yeelight.com/download/Yeelight_Inter-Operation_Spec.pdf)
 - [GATT-протокол Triones](https://github.com/madhead/saberlight/blob/master/protocols/Triones/protocol.md)
 - [Windows Bluetooth GATT Client](https://learn.microsoft.com/en-us/windows/apps/develop/devices-sensors/gatt-client)
+
+
+## Подсветка ПК — OpenRGB (9.1.0)
+
+Asus Aura Sync, MSI Mystic Light, Gigabyte RGB Fusion и ASRock Polychrome представлены через устройства, которые обнаруживает OpenRGB. Поддержка конкретной модели зависит от версии OpenRGB и наличия Direct-режима. Прямые фирменные SDK не используются.
+
+Подключение: TCP SDK Server, по умолчанию 127.0.0.1:6742. Клиент согласует SDK 3 (совместим с более новыми серверами), поддерживает SDK 1–3. Старый неверсионированный SDK 0 не поддерживается. Можно выбирать целые компоненты либо отдельные зоны; размеры ARGB-зон настраиваются в OpenRGB. Режимы, прошивка и размеры LED аппаратуры не сохраняются и не изменяются.
+
+Программно проверены обнаружение, бинарные данные, Direct, RGB и зоны, чёрный цвет при выключении, heartbeat, изменение списка и повторное подключение. Проверка на реальных компонентах пока не выполнена.
+
+Источники: [SDK](https://openrgb.org/sdk.html), [протокол](https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md), [оборудование](https://openrgb.org/devices.html).

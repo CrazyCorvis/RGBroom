@@ -11,7 +11,7 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);.build/**</DefaultItemExcludes>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../Source/Models.cs;../Source/Effects.cs;../Source/LightEngine.cs;../Source/Network.cs;../Source/WifiConnections.cs;../Source/ExtraWifiDiscovery.cs;../Source/TuyaConnection.cs;../Source/SelfTests.cs;../Source/AdapterTests.cs" Link="Shared/%(Filename)%(Extension)" />
+    <Compile Include="../Source/Models.cs;../Source/Effects.cs;../Source/LightEngine.cs;../Source/Network.cs;../Source/WifiConnections.cs;../Source/ExtraWifiDiscovery.cs;../Source/TuyaConnection.cs;../Source/SelfTests.cs;../Source/AdapterTests.cs;../Source/OpenRgbConnection.cs;../Source/OpenRgbTests.cs" Link="Shared/%(Filename)%(Extension)" />
     <EmbeddedResource Include="../Source/Models.json" LogicalName="MagicHomeNET.Models.json" />
     <None Include="native/libRGBroomNative.dylib" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Link="libRGBroomNative.dylib" Condition="Exists('native/libRGBroomNative.dylib')" />
   </ItemGroup>

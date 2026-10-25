@@ -49,7 +49,7 @@ public partial class MainWindow : Window
     public record ProtocolChoice(ProtocolKind Key,string Name){public override string ToString()=>Name;}
     public static string ProtocolName(ProtocolKind p)=>p switch
     {
-        ProtocolKind.Auto=>"Magic Home · авто",ProtocolKind.Wled=>"WLED · Wi-Fi",ProtocolKind.Yeelight=>"Yeelight LAN",ProtocolKind.Tuya=>"Tuya / Smart Life",
+        ProtocolKind.OpenRgb=>"OpenRGB · подсветка ПК",ProtocolKind.Auto=>"Magic Home · авто",ProtocolKind.Wled=>"WLED · Wi-Fi",ProtocolKind.Yeelight=>"Yeelight LAN",ProtocolKind.Tuya=>"Tuya / Smart Life",
         ProtocolKind.ElkBledom=>"Lotus / ELK-BLEDOM",ProtocolKind.Triones=>"Triones / LED BLE",_=>"Magic Home · "+p
     };
     public EngineOptions Snapshot()
@@ -219,6 +219,7 @@ public partial class MainWindow : Window
     void AddIp(object? sender, RoutedEventArgs e)
     {
         var protocol=(AddProtocol.SelectedItem as ProtocolChoice)?.Key??ProtocolKind.Auto;
+        if(protocol==ProtocolKind.OpenRgb){ConfigurePc(sender,e);return;}
         string text=IpInput.Text.Trim();
         if(!DeviceEntry.ValidAddress(text,protocol)){Status(DeviceEntry.IsBle(protocol)?"Введите MAC Bluetooth, например AA:BB:CC:DD:EE:FF.":"Введите IPv4-адрес, например 192.168.1.50.");IpInput.Focus();return;}
         string ip;
@@ -241,6 +242,20 @@ public partial class MainWindow : Window
         catch (OperationCanceledException) { }
         catch (Exception ex) { Status("Ошибка поиска: " + ex.Message); App.Log(ex); }
         finally { if (!closing) ScanButton.IsEnabled = true; }
+    }
+    void ConfigurePc(object? sender, RoutedEventArgs e)
+    {
+        var dialog=new PcLightingWindow { Owner=this };
+        if(dialog.ShowDialog()==true)
+        {
+            foreach(var item in dialog.Added)
+            {
+                var existing=devices.FirstOrDefault(d=>d.Ip==item.Ip);
+                if(existing==null) devices.Add(item);
+                else { existing.Name=item.Name; existing.OpenRgbZoneName=item.OpenRgbZoneName; }
+            }
+            Status("Компоненты ПК добавлены. Подключите выбранные устройства.");
+        }
     }
     void SelectAll(object sender, RoutedEventArgs e) { DeviceGrid.CommitEdit(); foreach (var d in devices) d.Selected = true; }
     async void ScanBluetooth(object sender,RoutedEventArgs e)
@@ -272,6 +287,7 @@ public partial class MainWindow : Window
         if (selected.Length == 0) { Status("Отметьте хотя бы один контроллер."); DevicePanel.IsExpanded = true; return; }
         if(selected.Any(d=>d.Protocol==ProtocolKind.Tuya&&(d.DeviceId.Length==0||d.ProtectedKey.Length==0))){Status("Для Tuya сначала задайте Device ID и local_key кнопкой «Настройка Tuya».");return;}
         if(selected.Any(d=>!DeviceEntry.ValidAddress(d.Ip,d.Protocol))){Status("IP/MAC не соответствует выбранному семейству контроллера.");return;}
+        if(OpenRgbConnection.Overlaps(selected)){Status("OpenRGB: выберите весь компонент либо отдельные зоны, а не оба варианта сразу.");return;}
         if (connecting) return; connecting = true; ConnectButton.IsEnabled = false;
         int generation = ++connectionGeneration;
         try
@@ -331,6 +347,18 @@ public partial class MainWindow : Window
         IpInput.Text="AA-BB-CC-DD-EE-FF";AddIp(null,new RoutedEventArgs());SelfTests.Assert(devices.Last().Ip=="AA:BB:CC:DD:EE:FF"&&devices.Last().Protocol==ProtocolKind.ElkBledom,"BLE manual controller entry");
         var tuyaDialog=new TuyaSettingsWindow(new DeviceEntry{Ip="192.0.2.6",Protocol=ProtocolKind.Tuya}){Owner=this};tuyaDialog.Show();tuyaDialog.UpdateLayout();
         SelfTests.Assert(FindVisual<PasswordBox>(tuyaDialog).Count()==1,"Tuya key uses masked password control");tuyaDialog.Close();
+        var pcDialog=new PcLightingWindow { Owner=this };pcDialog.Show();pcDialog.UpdateLayout();
+        SelfTests.Assert(FindVisual<TextBox>(pcDialog).Count()==2,"PC lighting server and port controls");
+        SelfTests.Assert(FindVisual<Button>(pcDialog).Any(b=>Equals(b.Content,"Найти компоненты")),"PC lighting discovery button");
+        var pcPath=Environment.GetEnvironmentVariable("RGBROOM_PC_PREVIEW");
+        if(!string.IsNullOrEmpty(pcPath))
+        {
+            var pcBitmap=new System.Windows.Media.Imaging.RenderTargetBitmap((int)pcDialog.ActualWidth,(int)pcDialog.ActualHeight,96,96,PixelFormats.Pbgra32);
+            pcBitmap.Render(pcDialog);var pcPng=new System.Windows.Media.Imaging.PngBitmapEncoder();pcPng.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(pcBitmap));
+            using var pcStream=System.IO.File.Create(pcPath);pcPng.Save(pcStream);
+        }
+        pcDialog.Close();
+        SelfTests.Report("PASS: PC lighting dialog, server/port controls and discovery action");
         DevicePanel.IsExpanded = true; Width = 920; Height = 700; UpdateLayout();
         SelfTests.Assert(DeviceGrid.ActualWidth > 700, "Controller grid fits minimum window");
         DevicePanel.IsExpanded = false; Width = 1060; Height = 820; Navigation.SelectedIndex = 0; UpdateLayout();

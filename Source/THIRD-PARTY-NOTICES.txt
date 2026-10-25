@@ -26,3 +26,7 @@ https://github.com/FergusInLondon/ELK-BLEDOM/blob/master/PROTCOL.md
 https://github.com/madhead/saberlight/blob/master/protocols/Triones/protocol.md
 https://kno.wled.ge/interfaces/json-api/
 https://www.yeelight.com/download/Yeelight_Inter-Operation_Spec.pdf
+
+OpenRGB SDK binary wire-format reference (independent C# implementation):
+https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md
+OpenRGB runs separately and is not bundled with RGBroom.
