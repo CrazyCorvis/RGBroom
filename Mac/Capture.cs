@@ -9,13 +9,19 @@ public sealed class AudioSource : IAudioSource
 {
     readonly int handle;
     bool disposed;
-    public int SampleRate => 48000;
-    public static IReadOnlyList<AudioEndpoint> Outputs() => new[] { new AudioEndpoint("", "Системный звук macOS · все приложения") };
-    public AudioSource(string id, string oldName) => handle = Native.Call(new { op = "capture-start", audio = true, display = "" }).GetProperty("handle").GetInt32();
+    public int SampleRate { get; }
+    public static IReadOnlyList<AudioEndpoint> Outputs() => Native.Call(new { op = "audio-outputs" }).GetProperty("outputs").EnumerateArray()
+        .Select(d => new AudioEndpoint(d.GetProperty("id").GetString()!, d.GetProperty("name").GetString()!)).ToArray();
+    public AudioSource(string id, string oldName)
+    {
+        var result = Native.Call(new { op = "capture-start", audio = true, display = "", output = id });
+        handle = result.GetProperty("handle").GetInt32();
+        SampleRate = (int)result.GetProperty("sampleRate").GetDouble();
+    }
     public float[][] Snapshot()
     {
         var samples = new float[SpectrumAnalyzer.Size * 2];
-        if (Native.rgb_audio(handle, samples) < 0) throw new IOException("Захват звука остановлен. Проверьте разрешение записи экрана и системного аудио.");
+        if (Native.rgb_audio(handle, samples) < 0) throw new IOException("Захват звука остановлен. Проверьте подключение и частоту аудиовыхода, а также разрешение записи системного аудио. Затем нажмите «Повторить».");
         return new[] { samples[..SpectrumAnalyzer.Size], samples[SpectrumAnalyzer.Size..] };
     }
     public void Dispose() { if (!disposed) { disposed = true; Native.Call(new { op = "capture-stop", handle }); } }

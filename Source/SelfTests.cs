@@ -182,7 +182,8 @@ public static class SelfTests
         await using var group = new LightGroup(_ => source);
         await group.ConnectAsync(new[] { new DeviceEntry { Ip = "192.0.2.5" } }, (_, _) => { });
         var screens = new List<FakeScreen>(); var audios = new List<FakeAudio>();
-        await using var engine = new LightEngine(group, (_, _) => { }, text => throw new Exception(text), (id, name) => { var a = new FakeAudio(); audios.Add(a); return a; }, id => { var s = new FakeScreen(id == "second" ? new(0, 0, 255) : new(255, 0, 0)); screens.Add(s); return s; });
+        var audioIds = new System.Collections.Concurrent.ConcurrentQueue<(string Id, string Name)>();
+        await using var engine = new LightEngine(group, (_, _) => { }, text => throw new Exception(text), (id, name) => { var a = new FakeAudio(); audios.Add(a); audioIds.Enqueue((id, name)); return a; }, id => { var s = new FakeScreen(id == "second" ? new(0, 0, 255) : new(255, 0, 0)); screens.Add(s); return s; });
         engine.Update(Options(LightMode.Ambient) with { Brightness = 50 });
         await Until(() => source.Colors.Contains(new(128, 0, 0)), "ambient brightness");
         engine.Update(Options(LightMode.Ambient) with { Brightness = 50, Display = "second" });
@@ -190,6 +191,12 @@ public static class SelfTests
         engine.Power(false); await Until(() => screens[^1].Disposed, "power off stops capture");
         engine.Power(true); await Until(() => screens.Count >= 3, "power on restarts capture");
         engine.Update(Options(LightMode.Spectrum)); await Until(() => audios.Count > 0, "audio mode starts source");
-        engine.Update(Options(LightMode.Color)); await Until(() => audios[0].Disposed, "leaving music releases capture");
+        engine.Update(Options(LightMode.Spectrum) with { OutputId = "headphones", OutputName = "Headphones" });
+        await Until(() => audioIds.Contains(("headphones", "Headphones")), "selected audio output reaches capture factory");
+        Assert(audios[0].Disposed, "switching output releases old audio capture");
+        engine.Update(Options(LightMode.Music) with { OutputId = "speakers", OutputName = "Speakers" });
+        await Until(() => audioIds.Contains(("speakers", "Speakers")), "music uses its own selected audio output");
+        Assert(audios[1].Disposed, "switching music profile releases previous output");
+        engine.Update(Options(LightMode.Color)); await Until(() => audios[^1].Disposed, "leaving music releases capture");
     }
 }

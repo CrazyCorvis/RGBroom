@@ -6,8 +6,8 @@
   <key>CFBundleIdentifier</key><string>com.crazycorvis.rgbroom</string>
   <key>CFBundleExecutable</key><string>RGBroom</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>9.1.0</string>
-  <key>CFBundleVersion</key><string>91</string>
+  <key>CFBundleShortVersionString</key><string>9.1.1</string>
+  <key>CFBundleVersion</key><string>92</string>
   <key>CFBundleIconFile</key><string>RGBroom</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>NSHighResolutionCapable</key><true/>

@@ -47,6 +47,7 @@ struct Display: Codable, Identifiable { var Id: String; var Name: String; var id
     @Published var levels = [0.0, 0, 0]
     @Published var statuses = [String: String]()
     @Published var displays = [Display]()
+    @Published var audioOutputs = [Display]()
     @Published var error: String?
     @Published var scanning = false
     @Published var connected = false
@@ -100,10 +101,11 @@ struct Display: Codable, Identifiable { var Id: String; var Name: String; var id
         guard let r = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let type = r["type"] as? String else { return }
         func decode<T: Decodable>(_ name: String, _ t: T.Type) -> T? { guard let v = r[name], let d = try? JSONSerialization.data(withJSONObject: v) else { return nil }; return try? JSONDecoder().decode(t, from:d) }
         switch type {
-        case "settings": if let s = decode("settings", Settings.self) { settings = s; ready = true; send(["op":"displays"]) }
+        case "settings": if let s = decode("settings", Settings.self) { settings = s; ready = true; send(["op":"displays"]); send(["op":"audio-outputs"]) }
         case "frame": if let c = decode("color", RGB.self) { output = c }; levels = r["levels"] as? [Double] ?? [0,0,0]
         case "status": if let id = r["id"] as? String { statuses[id] = r["status"] as? String }
         case "error": error = r["message"] as? String; scanning = false
+        case "audio-outputs": audioOutputs = decode("outputs", [Display].self) ?? []
         case "displays": displays = decode("displays", [Display].self) ?? []
         case "discovered":
             for device in decode("devices", [Device].self) ?? [] where !settings.Devices.contains(where: { $0.Ip == device.Ip }) { settings.Devices.append(device) }
