@@ -18,9 +18,13 @@ STAGING="$(mktemp -d "${TMPDIR:-/tmp}/rgbroom-build.XXXXXX")"
 APP="$STAGING/RGBroom.app"
 mkdir -p "$BUILD" "$APP/Contents/MacOS" "$APP/Contents/Resources/Engine" "$OUTPUT"
 xcrun swiftc -swift-version 5 -O -emit-library -target "$ARCH-apple-macosx14.0" \
-  -module-cache-path "$BUILD/module-cache" Mac/native/Bridge.swift -o Mac/native/libRGBroomNative.dylib
+  -module-cache-path "$BUILD/module-cache" Mac/native/Bridge.swift Mac/native/AudioOutput.swift -o Mac/native/libRGBroomNative.dylib
 "$DOTNET" build Mac/RGBroom.Mac.csproj -c Release
 if [[ "$ARCH" == "$(uname -m)" ]]; then
+  xcrun swiftc -swift-version 5 -target "$ARCH-apple-macosx14.0" \
+    -module-cache-path "$BUILD/module-cache" Mac/native/Bridge.swift Mac/native/AudioOutput.swift \
+    Mac/tests/AudioCaptureTests.swift -o "$BUILD/audio-tests"
+  "$BUILD/audio-tests"
   export MAGICHOME_TEST_REPORT="$BUILD/test-report.txt"
   : > "$MAGICHOME_TEST_REPORT"
   "$DOTNET" Mac/bin/Release/net10.0/RGBroom.Engine.dll --self-test
@@ -57,6 +61,12 @@ if [[ -e "$OUTPUT/RGBroom.app" ]]; then
   mv "$OUTPUT/RGBroom.app" "$BUILD/RGBroom-previous-$(date +%s).app"
 fi
 ditto "$APP" "$OUTPUT/RGBroom.app"
-xattr -dr com.apple.FinderInfo "$OUTPUT/RGBroom.app" 2>/dev/null || true
-codesign --verify --deep --strict "$OUTPUT/RGBroom.app"
+# File-provider metadata may arrive just after copying. Retry only this final verification.
+for ATTEMPT in 1 2 3; do
+  xattr -dr com.apple.FinderInfo "$OUTPUT/RGBroom.app" 2>/dev/null || true
+  xattr -dr com.apple.ResourceFork "$OUTPUT/RGBroom.app" 2>/dev/null || true
+  if codesign --verify --deep --strict "$OUTPUT/RGBroom.app"; then break; fi
+  if [[ "$ATTEMPT" == 3 ]]; then exit 1; fi
+  sleep 0.2
+done
 echo "Built: $OUTPUT/RGBroom.app"

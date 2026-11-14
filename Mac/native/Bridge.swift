@@ -14,16 +14,24 @@ private func nextID() -> Int32 { registryLock.lock(); defer { registryLock.unloc
 private func capture(_ id: Int32) -> Capture? { registryLock.lock(); defer { registryLock.unlock() }; return captures[id] }
 private func connection(_ id: Int32) throws -> BLEConnection { registryLock.lock(); defer { registryLock.unlock() }; guard let c = connections[id] else { throw failure("BLE-соединение закрыто") }; return c }
 
-private final class Capture: NSObject, SCStreamOutput, SCStreamDelegate {
+final class Capture: NSObject, SCStreamOutput, SCStreamDelegate {
     let lock = NSLock()
     let queue = DispatchQueue(label: "RGBroom.capture")
     var stream: SCStream?
+    var outputTap: OutputTap?
+    var sampleRate = 48000.0
     var pixels = [UInt8](repeating: 0, count: 128 * 72 * 4)
     var samples = [[Float]](repeating: [Float](repeating: 0, count: 2048), count: 2)
     var position = 0
     var lastAudio = Date.distantPast
     var failed = false
-    func start(display: String, audio: Bool) throws {
+    func start(display: String, audio: Bool, output: String) throws {
+        if audio && !output.isEmpty {
+            let tap = OutputTap()
+            try tap.start(uid: output) { [weak self] buffers in self?.receiveAudio(buffers) }
+            sampleRate = tap.sampleRate; outputTap = tap
+            return
+        }
         let done = DispatchSemaphore(value: 0)
         var result: Error?
         Task {
@@ -50,6 +58,7 @@ private final class Capture: NSObject, SCStreamOutput, SCStreamDelegate {
         if let error = result { throw failure("Разрешите RGBroom запись экрана и системного аудио в Системных настройках → Конфиденциальность и безопасность. \(error.localizedDescription)") }
     }
     func stop() {
+        if let tap = outputTap { tap.stop(); outputTap = nil; return }
         let done = DispatchSemaphore(value: 0)
         Task { try? await stream?.stopCapture(); done.signal() }
         done.wait(); stream = nil
@@ -80,24 +89,30 @@ private final class Capture: NSObject, SCStreamOutput, SCStreamDelegate {
             let list = raw.bindMemory(to: AudioBufferList.self, capacity: 1)
             var block: CMBlockBuffer?
             guard CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(sampleBuffer, bufferListSizeNeededOut: nil, bufferListOut: list, bufferListSize: needed, blockBufferAllocator: nil, blockBufferMemoryAllocator: nil, flags: 0, blockBufferOut: &block) == noErr else { return }
-            let buffers = UnsafeMutableAudioBufferListPointer(list)
-            let frames = sampleBuffer.numSamples
-            lock.lock(); defer { lock.unlock() }
-            for i in 0..<frames {
-                for ch in 0..<2 {
-                    let b = buffers[min(ch, buffers.count - 1)]
-                    guard let data = b.mData else { continue }
-                    let channels = Int(b.mNumberChannels)
-                    let index = i * channels + (buffers.count == 1 ? min(ch, channels - 1) : 0)
-                    if index * 4 + 4 <= Int(b.mDataByteSize) {
-                        let v = data.assumingMemoryBound(to: Float.self)[index]
-                        samples[ch][position] = v.isFinite ? v : 0
-                    }
-                }
-                position = (position + 1) % 2048
-            }
-            lastAudio = Date()
+            receiveAudio(UnsafePointer(list))
         }
+    }
+    func receiveAudio(_ list: UnsafePointer<AudioBufferList>) {
+        let buffers = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: list))
+        guard !buffers.isEmpty, buffers.allSatisfy({ $0.mNumberChannels > 0 && $0.mData != nil }) else { return }
+        let frames = buffers.map { Int($0.mDataByteSize) / (4 * Int($0.mNumberChannels)) }.min() ?? 0
+        lock.lock(); defer { lock.unlock() }
+        for i in 0..<frames {
+            for ch in 0..<2 {
+                var channel = ch
+                var bufferIndex = 0
+                while bufferIndex + 1 < buffers.count && channel >= Int(buffers[bufferIndex].mNumberChannels) {
+                    channel -= Int(buffers[bufferIndex].mNumberChannels); bufferIndex += 1
+                }
+                let b = buffers[bufferIndex]
+                let channels = Int(b.mNumberChannels)
+                let index = i * channels + min(channel, channels - 1)
+                let v = b.mData!.assumingMemoryBound(to: Float.self)[index]
+                samples[ch][position] = v.isFinite ? v : 0
+            }
+            position = (position + 1) % 2048
+        }
+        lastAudio = Date()
     }
 }
 
@@ -186,9 +201,13 @@ private func request(_ r: [String: Any]) throws -> [String: Any] {
         var ids = [CGDirectDisplayID](repeating: 0, count: 32); var count: UInt32 = 0
         CGGetActiveDisplayList(32, &ids, &count)
         return ["displays": (0..<Int(count)).map { i in ["id": String(ids[i]), "name": "Дисплей \(i+1) · \(CGDisplayPixelsWide(ids[i]))×\(CGDisplayPixelsHigh(ids[i]))" + (ids[i] == CGMainDisplayID() ? " · основной" : "")] }]
+    case "audio-outputs":
+        var outputs = [["id": "", "name": "Системный звук · все приложения"]]
+        if #available(macOS 14.2, *) { outputs += try AudioOutput.available().map { ["id": $0.uid, "name": $0.name] } }
+        return ["outputs": outputs]
     case "capture-start":
-        let c = Capture(); try c.start(display: r["display"] as? String ?? "", audio: r["audio"] as? Bool ?? false)
-        let id = nextID(); registryLock.lock(); captures[id] = c; registryLock.unlock(); return ["handle": id]
+        let c = Capture(); try c.start(display: r["display"] as? String ?? "", audio: r["audio"] as? Bool ?? false, output: r["output"] as? String ?? "")
+        let id = nextID(); registryLock.lock(); captures[id] = c; registryLock.unlock(); return ["handle": id, "sampleRate": c.sampleRate]
     case "capture-stop":
         let id = (r["handle"] as? NSNumber)?.int32Value ?? 0
         registryLock.lock(); let c = captures.removeValue(forKey: id); registryLock.unlock(); c?.stop(); return [:]
@@ -236,7 +255,9 @@ private func request(_ r: [String: Any]) throws -> [String: Any] {
 }
 @_cdecl("rgb_free") public func rgb_free(_ value: UnsafeMutableRawPointer?) { free(value) }
 @_cdecl("rgb_audio") public func rgb_audio(_ id: Int32, _ dest: UnsafeMutablePointer<Float>) -> Int32 {
-    guard let c = capture(id) else { return -1 }; c.lock.lock(); defer { c.lock.unlock() }
+    guard let c = capture(id) else { return -1 }
+    if let tap = c.outputTap, !tap.isAvailable { return -1 }
+    c.lock.lock(); defer { c.lock.unlock() }
     if c.failed { return -1 }
     let silent = Date().timeIntervalSince(c.lastAudio) > 0.15
     for ch in 0..<2 { for i in 0..<2048 { dest[ch * 2048 + i] = silent ? 0 : c.samples[ch][(c.position + i) % 2048] } }

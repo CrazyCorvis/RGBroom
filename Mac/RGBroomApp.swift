@@ -110,7 +110,7 @@ struct RoomView: View {
                     SettingSlider(title: "Полный цикл", value: $store.settings.TransitionSeconds, range: 3...60, suffix: " с")
                 }
             case .music, .spectrum:
-                AudioControls(profile: audioBinding, levels: store.levels)
+                AudioControls(profile: audioBinding, levels: store.levels, outputs: store.audioOutputs, refresh: { store.send(["op":"audio-outputs"]) })
             case .ambient:
                 Section("Дисплей") {
                     Picker("Источник", selection: $store.settings.Display) {
@@ -188,7 +188,24 @@ struct SettingSlider: View {
 struct AudioControls: View {
     @Binding var profile: AudioProfile
     let levels: [Double]
+    let outputs: [Display]
+    let refresh: () -> Void
     var body: some View {
+        Section("Источник звука") {
+            Picker("Аудиовыход", selection: Binding(get: { profile.OutputId }, set: { id in
+                profile.OutputId = id
+                profile.OutputName = outputs.first(where: { $0.Id == id })?.Name ?? ""
+            })) {
+                Text("Системный звук · все приложения").tag("")
+                ForEach(outputs.filter { !$0.Id.isEmpty }) { output in Text(output.Name).tag(output.Id) }
+                if !profile.OutputId.isEmpty && !outputs.contains(where: { $0.Id == profile.OutputId }) {
+                    Text("\(profile.OutputName.isEmpty ? "Сохранённый выход" : profile.OutputName) · недоступен").tag(profile.OutputId)
+                }
+            }.pickerStyle(.menu)
+            Button("Обновить устройства", systemImage: "arrow.clockwise", action: refresh)
+            Text("Выберите выход, через который играет музыка. Выбор здесь не переключает колонки или наушники в macOS. Нужно разрешение записи системного аудио; звук обрабатывается на Mac и не сохраняется.").font(.callout).foregroundStyle(.secondary)
+            if #unavailable(macOS 14.2) { Text("Выбор отдельного выхода доступен с macOS 14.2.").font(.caption).foregroundStyle(.secondary) }
+        }.onAppear(perform: refresh)
         Section("Реакция на музыку") {
             Picker("Характер", selection: $profile.Style) {
                 Text("Плавный").tag(0); Text("Пульсация").tag(1); Text("Энергичный").tag(2); Text("Стробоскоп").tag(3)
@@ -207,7 +224,7 @@ struct AudioControls: View {
             SettingSlider(title: "Средние", value: $profile.Mid, range: 0...200, suffix: "%")
             SettingSlider(title: "Высокие", value: $profile.High, range: 0...200, suffix: "%")
         }
-        Section { Label("Системный звук · все приложения", systemImage: "speaker.wave.2"); Text("Нужно разрешение записи экрана и системного аудио. Звук обрабатывается на Mac и не сохраняется.").font(.callout).foregroundStyle(.secondary) }
+
     }
 }
 

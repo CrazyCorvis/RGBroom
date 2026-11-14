@@ -28,7 +28,7 @@ public static class App
             var p = mode == LightMode.Spectrum ? settings.Spectrum : settings.Music;
             double brightness = mode switch { LightMode.Transition => settings.TransitionBrightness, LightMode.Ambient => settings.AmbientBrightness, LightMode.Music or LightMode.Spectrum => p.Brightness, _ => settings.Brightness };
             engine.Update(new(mode, settings.Color, brightness, settings.TransitionSeconds, p.Style, p.Gain,
-                new[] { p.Low / 100, p.Mid / 100, p.High / 100 }, p.FlashBrightness, p.FlashMilliseconds, "", "", settings.Display));
+                new[] { p.Low / 100, p.Mid / 100, p.High / 100 }, p.FlashBrightness, p.FlashMilliseconds, p.OutputId, p.OutputName, settings.Display));
         }
         Emit(new { type = "settings", settings });
         Apply();
@@ -66,6 +66,7 @@ public static class App
                             Emit(new { type = "discovered", devices = found });
                         }
                         break;
+                    case "audio-outputs": Emit(new { type = "audio-outputs", outputs = AudioSource.Outputs() }); break;
                     case "displays": Emit(new { type = "displays", displays = ScreenSource.Displays() }); break;
                     case "secret":
                         var device = settings.Devices.First(d => d.Ip == r.GetProperty("id").GetString());
